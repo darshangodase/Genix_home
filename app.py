@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, flash, redirect, session, url_for
+from flask import Flask, render_template, request, jsonify, flash, redirect, session, url_for, send_from_directory
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SelectField
 from wtforms.validators import DataRequired, Email, Length
@@ -9,7 +9,11 @@ from sqlalchemy import text
 import os
 
 # Initialize Flask app
-app = Flask(__name__, static_folder='assets', static_url_path='/assets')
+app = Flask(__name__, 
+    static_folder='assets',
+    static_url_path='/assets',
+    static_host=None  # This ensures static files are served from the same domain
+)
 
 # Load configuration
 app.config.from_object(Config)
@@ -23,6 +27,11 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.config['PERMANENT_SESSION_LIFETIME'] = 1800  # 30 minutes
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
+
+# Add a route to serve static files (as a fallback)
+@app.route('/assets/<path:filename>')
+def serve_static(filename):
+    return send_from_directory(app.static_folder, filename)
 
 # Error handlers
 @app.errorhandler(404)
