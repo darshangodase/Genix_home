@@ -6,15 +6,46 @@ from models import db, User
 from config import Config
 from flask_migrate import Migrate
 from sqlalchemy import text
+import time
+import logging
+from sqlalchemy.exc import OperationalError
 
 # Initialize Flask app
 app = Flask(__name__, static_folder='assets', static_url_path='/assets')
 
+# Load configuration
 app.config.from_object(Config)
 
-db.init_app(app)
-migrate = Migrate(app, db)
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
+# Initialize extensions with retry logic
+max_retries = 3
+retry_delay = 1  # seconds
+
+def init_db():
+    for attempt in range(max_retries):
+        try:
+            db.init_app(app)
+            migrate = Migrate(app, db)
+            # Test the connection
+            with app.app_context():
+                db.session.execute(text('SELECT 1'))
+                db.session.commit()
+            logger.info("Database connection successful")
+            return True
+        except OperationalError as e:
+            logger.error(f"Database connection attempt {attempt + 1} failed: {str(e)}")
+            if attempt == max_retries - 1:
+                raise
+            time.sleep(retry_delay)
+        except Exception as e:
+            logger.error(f"Unexpected error during database initialization: {str(e)}")
+            raise
+
+# Initialize database
+init_db()
 
 # Error handlers
 @app.errorhandler(404)
@@ -172,19 +203,25 @@ def health_check():
 def test_db_connection():
     try:
         # Try to connect to the database using text()
-        db.session.execute(text('SELECT 1'))
-        db.session.commit()
+        with app.app_context():
+            db.session.execute(text('SELECT 1'))
+            db.session.commit()
+            
+        # Get the database URL for logging (with password masked)
+        db_url = app.config['SQLALCHEMY_DATABASE_URI']
+        masked_url = db_url.replace(db_url.split('@')[0], '***')
+        
         return jsonify({
             'status': 'success',
             'message': 'Database connection successful',
-            'database_url': str(app.config['SQLALCHEMY_DATABASE_URI']).replace(app.config['SQLALCHEMY_DATABASE_URI'].split('@')[0], '***')
+            'database_url': masked_url
         }), 200
     except Exception as e:
-        app.logger.error('Database connection test failed: %s', str(e))
+        logger.error(f"Database connection test failed: {str(e)}")
         return jsonify({
             'status': 'error',
             'message': str(e),
-            'database_url': str(app.config['SQLALCHEMY_DATABASE_URI']).replace(app.config['SQLALCHEMY_DATABASE_URI'].split('@')[0], '***')
+            'database_url': '***'  # Don't expose the URL in error cases
         }), 500
 
 if __name__ == '__main__':
