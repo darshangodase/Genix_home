@@ -289,7 +289,7 @@
 
     <!-- Toastify JS -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    
+
     <script>
         function togglePasswordVisibility() {
             const passwordInput = document.getElementById('password');
@@ -361,26 +361,26 @@
 
         // Update role when buttons are clicked
         document.addEventListener('DOMContentLoaded', function() {
-            const roleButtons = document.querySelectorAll('.bg-gray-200 button');
+                        const roleButtons = document.querySelectorAll('.bg-gray-200 button');
             const roleInput = document.getElementById('role');
-            
-            roleButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    // Remove active state from all buttons
-                    roleButtons.forEach(btn => {
-                        btn.classList.remove('bg-primary', 'text-white');
-                        btn.classList.add('text-primary');
-                    });
-                    
-                    // Add active state to clicked button
-                    this.classList.remove('text-primary');
-                    this.classList.add('bg-primary', 'text-white');
+                        
+                        roleButtons.forEach(button => {
+                            button.addEventListener('click', function() {
+                                // Remove active state from all buttons
+                                roleButtons.forEach(btn => {
+                                    btn.classList.remove('bg-primary', 'text-white');
+                                    btn.classList.add('text-primary');
+                                });
+                                
+                                // Add active state to clicked button
+                                this.classList.remove('text-primary');
+                                this.classList.add('bg-primary', 'text-white');
                     
                     // Update hidden role input
                     roleInput.value = this.textContent.toLowerCase();
-                });
-            });
-        });
+                            });
+                        });
+                    });
 
         // Toast notification function
         function showToast(message, type = 'info') {
