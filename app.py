@@ -5,21 +5,16 @@ from wtforms.validators import DataRequired, Email, Length
 from models import db, User
 from config import Config
 from flask_migrate import Migrate
-import os
-import logging
-from logging.handlers import RotatingFileHandler
-from werkzeug.middleware.proxy_fix import ProxyFix
 from sqlalchemy import text
 
 # Initialize Flask app
-app = Flask(__name__)
+app = Flask(__name__, static_folder='assets', static_url_path='/assets')
 
-# Load configuration
 app.config.from_object(Config)
 
-# Initialize extensions
 db.init_app(app)
 migrate = Migrate(app, db)
+
 
 # Error handlers
 @app.errorhandler(404)
