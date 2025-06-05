@@ -4,12 +4,23 @@
         {
             "src": "app.py",
             "use": "@vercel/python"
+        },
+        {
+            "src": "assets/**",
+            "use": "@vercel/static"
         }
     ],
     "routes": [
         {
+            "src": "/assets/(.*)",
+            "dest": "/assets/$1"
+        },
+        {
             "src": "/(.*)",
             "dest": "app.py"
         }
-    ]
+    ],
+    "env": {
+        "FLASK_ENV": "production"
+    }
 } 
