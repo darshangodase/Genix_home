@@ -8,10 +8,15 @@ from flask_migrate import Migrate
 from sqlalchemy import text
 import os
 import logging
-from logging import RotatingFileHandler
+from logging.handlers import RotatingFileHandler
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 # Initialize Flask app
-app = Flask(__name__, static_folder='assets', static_url_path='/assets')
+app = Flask(__name__, 
+    static_folder='assets', 
+    static_url_path='/assets',
+    template_folder='templates'  # Explicitly set template folder
+)
 
 # Load configuration
 app.config.from_object(Config)
@@ -19,6 +24,10 @@ app.config.from_object(Config)
 # Initialize database
 db.init_app(app)
 migrate = Migrate(app, db)
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+app.logger.setLevel(logging.INFO)
 
 # Production settings
 if os.environ.get('FLASK_ENV') == 'production':
@@ -51,6 +60,16 @@ if os.environ.get('FLASK_ENV') == 'production':
     app.logger.info('Database URI: %s', app.config['SQLALCHEMY_DATABASE_URI'].replace(
         app.config['SQLALCHEMY_DATABASE_URI'].split('@')[0], '***'
     ))
+
+# Add a test route to verify the app is working
+@app.route('/test')
+def test():
+    app.logger.info('Test route accessed')
+    return jsonify({
+        'status': 'ok',
+        'message': 'Flask app is working!',
+        'environment': os.environ.get('FLASK_ENV', 'development')
+    })
 
 # Error handlers
 @app.errorhandler(404)
@@ -250,5 +269,7 @@ def test_db_connection():
         }), 500
 
 if __name__ == '__main__':
-        app.run()
+    # For local development
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=(os.environ.get('FLASK_ENV') != 'production'))
 
