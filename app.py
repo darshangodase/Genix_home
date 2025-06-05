@@ -12,7 +12,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from sqlalchemy import text
 
 # Initialize Flask app
-app = Flask(__name__, static_folder='assets', static_url_path='/assets')
+app = Flask(__name__)
 
 # Load configuration
 app.config.from_object(Config)
@@ -20,30 +20,6 @@ app.config.from_object(Config)
 # Initialize extensions
 db.init_app(app)
 migrate = Migrate(app, db)
-
-# Production settings
-if os.environ.get('FLASK_ENV') == 'production':
-    # Security settings
-    app.config['SESSION_COOKIE_SECURE'] = True
-    app.config['SESSION_COOKIE_HTTPONLY'] = True
-    app.config['REMEMBER_COOKIE_SECURE'] = True
-    app.config['REMEMBER_COOKIE_HTTPONLY'] = True
-    app.config['PREFERRED_URL_SCHEME'] = 'https'
-    
-    # Handle proxy headers
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
-    
-    # Set up logging
-    if not os.path.exists('logs'):
-        os.mkdir('logs')
-    file_handler = RotatingFileHandler('logs/genix.log', maxBytes=10240, backupCount=10)
-    file_handler.setFormatter(logging.Formatter(
-        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
-    ))
-    file_handler.setLevel(logging.INFO)
-    app.logger.addHandler(file_handler)
-    app.logger.setLevel(logging.INFO)
-    app.logger.info('Genix.ai startup')
 
 # Error handlers
 @app.errorhandler(404)
