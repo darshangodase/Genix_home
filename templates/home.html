@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genix.ai - AI Healthcare Solutions</title>
+    <!-- Add Manrope font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0191C6',
+                        secondary: '#0191C6',
+                    },
+                    fontFamily: {
+                        sans: ['Manrope', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Ensure Manrope is applied to all elements */
+        * {
+            font-family: 'Manrope', sans-serif;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    {% include 'navbar.html' %}
+    <main class="">
+        {% include 'hero.html' %}
+        {% include 'integration.html' %}
+        {% include 'scheduling.html' %}
+        {% include 'ai_healthcare.html' %}
+        {% include 'testimonials.html' %}
+        {% include 'faq.html' %}
+    </main>
+</body>
+</html> 

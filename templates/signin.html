@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genix.ai - AI Healthcare Solutions</title>
+    <!-- Add Manrope font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Toastify CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0191C6',
+                        secondary: '#0191C6',
+                    },
+                    fontFamily: {
+                        sans: ['Manrope', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        /* Floating Label styles */
+        .form-group {
+            position: relative;
+            /* margin-bottom added via space-y on the form */
+        }
+
+        .form-group label {
+            position: absolute;
+            top: 0.75rem; /* Adjusted to center with input */
+            left: 0.75rem;
+            color: #a0aec0;
+            pointer-events: none;
+            transition: all 0.2s ease-out;
+            font-size: 0.875rem;
+            z-index: 10;
+            background-color: white;
+            padding: 0 0.25rem;
+            margin-left: 0.5rem;
+            line-height: 1; /* Added to ensure consistent height */
+        }
+
+        .form-group input:focus ~ label,
+        .form-group input:not(:placeholder-shown) ~ label {
+            top: -0.5rem;
+            left: 0.5rem;
+            font-size: 0.75rem;
+            color: #4a5568;
+            line-height: 1; /* Added to ensure consistent height */
+        }
+
+        .form-group input,
+        .form-group select {
+             padding-top: 0.75rem;
+             padding-bottom: 0.75rem;
+             border: 1px solid black !important;
+             border-radius: 0.5rem !important;
+             line-height: 1.25rem;
+             height: 2.5rem;
+             font-weight: 600 !important; /* Added bold text */
+             color: black !important; /* Added black text */
+        }
+
+        .form-group select {
+             padding-top: 0.5rem; /* Slightly less padding for select */
+             padding-bottom: 0.5rem;
+             height: 2.5rem; /* Match input height */
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+             border-color: black !important;
+             box-shadow: none !important;
+        }
+
+        /* Update the input classes to remove conflicting styles */
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="password"],
+        .form-group input[type="tel"],
+        .form-group select {
+            @apply shadow-none border-black rounded-lg font-semibold text-black;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Style for placeholder text */
+        .form-group input::placeholder,
+        .form-group select::placeholder {
+            color: #a0aec0 !important; /* Keep placeholder text gray */
+            font-weight: normal !important; /* Keep placeholder text normal weight */
+        }
+
+        .form-group select ~ label {
+            top: -0.5rem;
+            left: 0.5rem;
+            font-size: 0.75rem;
+            color: #4a5568;
+            background-color: white;
+            padding: 0 0.25rem;
+            margin-left: 0.5rem;
+            line-height: 1; /* Added to ensure consistent height */
+        }
+
+        /* Password toggle icon styles */
+        .password-toggle {
+            cursor: pointer;
+            padding: 0.25rem;
+            transition: opacity 0.2s;
+        }
+        .password-toggle:hover {
+            opacity: 0.7;
+        }
+        .password-toggle svg {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+    </style>
+</head>
+
+<body class="min-h-screen bg-primary">
+    <div class="flex flex-col md:flex-row min-h-screen">
+
+        <!-- Left Section (Blue Background) -->
+        <div class="w-full md:w-4/6 bg-primary text-white p-6 flex flex-col justify-center text-center">
+            <h1 class="text-3xl md:text-4xl font-bold mb-3 leading-tight">Log in to your account</h1>
+            <p class="text-base mb-6 max-w-sm mx-auto">
+                to access smarter healthcare, secure records, and<br>AI-powered assistance — all in one place.
+            </p>
+           
+            <!-- Placeholder for Application Screenshots -->
+            <div class="flex justify-center items-center space-x-3 mt-6 relative">
+                <!-- First Dashboard Image with Icon -->
+                <div class="relative">
+                    <img src="/assets/images/login_dash.png" alt="App Screenshot 1" class="w-[340px] rounded-md shadow-lg">
+                    <!-- Mike Icon -->
+                    <div class="absolute -bottom-2 right-0 bg-white p-2 rounded-lg shadow-xl">
+                        <img src="/assets/images/multi-2.png" alt="Mike Icon" class="w-8 h-8">
+                    </div>
+                    <div class="absolute -bottom-2 right-16 bg-white p-2 rounded-lg shadow-xl">
+                        <img src="/assets/images/mike.png" alt="Multi-2 Icon" class="w-8 h-8">
+                    </div>
+                </div>
+
+                <!-- Second Dashboard Image with Icons -->
+                <div class="relative">
+                    <img src="/assets/images/signup_dash.png" alt="Phone Screenshot" class="w-32 rounded-md shadow-lg">
+                    <!-- Multi-1 Icon -->
+                    <div class="absolute -bottom-2 left-0 bg-white p-2 rounded-lg shadow-xl">
+                        <img src="/assets/images/multi-1.png" alt="Multi-1 Icon" class="w-8 h-8">
+                    </div>
+                    <!-- Multi-2 Icon -->
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Section (White Background - Form) -->
+        <div class="w-full md:w-2/6 bg-white rounded-xl shadow-lg flex items-center justify-center m-8 px-8">
+            <div class="max-w-sm w-full py-8">
+                <!-- Logo -->
+                <img src="/assets/images/logo.png" alt="Genix Logo" class="mb-4 h-10">
+
+                <h2 class="text-2xl font-bold mb-2">Welcome back</h2>
+                <p class="text-gray-900 text-sm mb-10">Don't have an account? <a href="/signup" class="text-primary border-b-2 border-primary">Sign up</a></p>
+                <!-- Sign up as section -->
+                <div class="mb-5">
+                    <label class="block text-gray-700 text-md font-bold mb-1">Login in as:<span class="text-red-500">*</span></label>
+                    <div class="bg-gray-200 p-1 rounded-lg">
+                        <div class="flex gap-1">
+                            <button type="button" 
+                                    class="w-1/3 py-2 text-center text-sm font-semibold bg-primary text-white rounded-lg transition-colors duration-200">Doctor</button>
+                            <button type="button" 
+                                    class="w-1/3 py-2 text-center text-sm font-semibold text-primary rounded-lg transition-colors duration-200">Patient</button>
+                            <button type="button" 
+                                    class="w-1/3 py-2 text-center text-sm font-semibold text-primary  rounded-lg transition-colors duration-200">Admin</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form -->
+                <form id="signinForm" class="space-y-8" onsubmit="handleSubmit(event)">
+                    {{ form.csrf_token }}
+                    <!-- Hidden role input -->
+                    <input type="hidden" id="role" name="role" value="doctor">
+
+                    <div class="form-group">
+                        <input type="email" 
+                               id="email" 
+                               name="email" 
+                               class="appearance-none w-full px-3 text-sm leading-tight focus:outline-none" 
+                               placeholder=" " 
+                               required>
+                        <label for="email" class="">E-mail<span class="text-red-500">*</span></label>
+                        <div class="error-message text-red-500 text-xs mt-1 hidden"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="relative flex items-center w-full">
+                            <input type="password" 
+                                   id="password" 
+                                   name="password"
+                                   class="appearance-none w-full px-3 pr-10 text-sm leading-tight focus:outline-none" 
+                                   placeholder=" "
+                                   required>
+                            <label for="password" class="">Password<span class="text-red-500">*</span></label>
+                            <div class="error-message text-red-500 text-xs mt-1 hidden"></div>
+                            <!-- Password toggle button -->
+                            <button type="button" 
+                                    class="password-toggle absolute right-2 focus:outline-none" 
+                                    onclick="togglePasswordVisibility()"
+                                    aria-label="Toggle password visibility">
+                                <!-- Eye icon (visible) -->
+                                <svg class="password-eye" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                <!-- Eye slash icon (hidden) -->
+                                <svg class="password-eye-slash hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="formError" class="text-red-500 text-sm mb-4 hidden"></div>
+
+                    <button type="submit" class="w-full bg-primary text-white font-bold py-3 px-3 text-sm rounded-md focus:outline-none focus:shadow-outline transition duration-300 ease-in-out mt-4">
+                        Sign in
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Toastify JS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    
+    <script>
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.querySelector('.password-eye');
+            const eyeSlashIcon = document.querySelector('.password-eye-slash');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.add('hidden');
+                eyeSlashIcon.classList.remove('hidden');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('hidden');
+                eyeSlashIcon.classList.add('hidden');
+            }
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            // Clear previous errors
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.classList.add('hidden');
+                el.textContent = '';
+            });
+            document.getElementById('formError').classList.add('hidden');
+            
+            const form = event.target;
+            const formData = new FormData(form);
+            
+            try {
+                const response = await fetch('/signin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
+                    },
+                    body: JSON.stringify(Object.fromEntries(formData))
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Login successful
+                    showToast(data.message, 'success');
+                    if (data.redirect) {
+                        setTimeout(() => {
+                            window.location.href = data.redirect;
+                        }, 1000);
+                    }
+                } else {
+                    // Handle validation errors
+                    if (data.errors) {
+                        Object.keys(data.errors).forEach(field => {
+                            const errorElement = form.querySelector(`[name="${field}"]`).nextElementSibling.nextElementSibling;
+                            if (errorElement) {
+                                errorElement.textContent = data.errors[field].join(', ');
+                                errorElement.classList.remove('hidden');
+                            }
+                        });
+                    }
+                    if (data.error) {
+                        document.getElementById('formError').textContent = data.error;
+                        document.getElementById('formError').classList.remove('hidden');
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('formError').textContent = 'An error occurred. Please try again.';
+                document.getElementById('formError').classList.remove('hidden');
+            }
+        }
+
+        // Update role when buttons are clicked
+        document.addEventListener('DOMContentLoaded', function() {
+            const roleButtons = document.querySelectorAll('.bg-gray-200 button');
+            const roleInput = document.getElementById('role');
+            
+            roleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active state from all buttons
+                    roleButtons.forEach(btn => {
+                        btn.classList.remove('bg-primary', 'text-white');
+                        btn.classList.add('text-primary');
+                    });
+                    
+                    // Add active state to clicked button
+                    this.classList.remove('text-primary');
+                    this.classList.add('bg-primary', 'text-white');
+                    
+                    // Update hidden role input
+                    roleInput.value = this.textContent.toLowerCase();
+                });
+            });
+        });
+
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            const colors = {
+                'success': '#10B981',
+                'error': '#EF4444',
+                'info': '#3B82F6',
+                'warning': '#F59E0B'
+            };
+            
+            Toastify({
+                text: message,
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: colors[type],
+                stopOnFocus: true,
+                className: "rounded-lg shadow-lg",
+                onClick: function(){} 
+            }).showToast();
+        }
+    </script>
+</body>
+</html> 
