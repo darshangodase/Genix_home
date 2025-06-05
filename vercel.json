@@ -2,19 +2,23 @@
     "version": 2,
     "builds": [
       {
-        "src": "vercel_app.py",
+        "src": "wsgi.py",
         "use": "@vercel/python"
       }
     ],
     "routes": [
       {
+        "src": "/assets/(.*)",
+        "dest": "/assets/$1"
+      },
+      {
         "src": "/(.*)",
-        "dest": "vercel_app.py"
+        "dest": "wsgi.py"
       }
     ],
     "env": {
         "FLASK_ENV": "production",
-        "FLASK_APP": "vercel_app.py"
+        "PYTHONPATH": "."
     }
   }
   

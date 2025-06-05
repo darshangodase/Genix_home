@@ -7,16 +7,9 @@ from config import Config
 from flask_migrate import Migrate
 from sqlalchemy import text
 import os
-import logging
-from logging.handlers import RotatingFileHandler
-from werkzeug.middleware.proxy_fix import ProxyFix
 
 # Initialize Flask app
-app = Flask(__name__, 
-    static_folder='assets', 
-    static_url_path='/assets',
-    template_folder='templates'  # Explicitly set template folder
-)
+app = Flask(__name__, static_folder='assets', static_url_path='/assets')
 
 # Load configuration
 app.config.from_object(Config)
@@ -25,51 +18,11 @@ app.config.from_object(Config)
 db.init_app(app)
 migrate = Migrate(app, db)
 
-# Set up logging
-logging.basicConfig(level=logging.INFO)
-app.logger.setLevel(logging.INFO)
-
-# Production settings
-if os.environ.get('FLASK_ENV') == 'production':
-    # Security settings
-    app.config['SESSION_COOKIE_SECURE'] = True
-    app.config['SESSION_COOKIE_HTTPONLY'] = True
-    app.config['REMEMBER_COOKIE_SECURE'] = True
-    app.config['REMEMBER_COOKIE_HTTPONLY'] = True
-    app.config['PREFERRED_URL_SCHEME'] = 'https'
-    
-    # Enhanced logging configuration
-    if not os.path.exists('logs'):
-        os.mkdir('logs')
-    file_handler = RotatingFileHandler('logs/genix.log', maxBytes=10240, backupCount=10)
-    file_handler.setFormatter(logging.Formatter(
-        '%(asctime)s %(levelname)s [%(filename)s:%(lineno)d] - %(message)s'
-    ))
-    file_handler.setLevel(logging.INFO)
-    app.logger.addHandler(file_handler)
-    
-    # Also log to console in production
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(logging.Formatter(
-        '%(asctime)s %(levelname)s [%(filename)s:%(lineno)d] - %(message)s'
-    ))
-    console_handler.setLevel(logging.INFO)
-    app.logger.addHandler(console_handler)
-    
-    app.logger.info('=== Application Started in Production Mode ===')
-    app.logger.info('Database URI: %s', app.config['SQLALCHEMY_DATABASE_URI'].replace(
-        app.config['SQLALCHEMY_DATABASE_URI'].split('@')[0], '***'
-    ))
-
-# Add a test route to verify the app is working
-@app.route('/test')
-def test():
-    app.logger.info('Test route accessed')
-    return jsonify({
-        'status': 'ok',
-        'message': 'Flask app is working!',
-        'environment': os.environ.get('FLASK_ENV', 'development')
-    })
+# Configure session
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['PERMANENT_SESSION_LIFETIME'] = 1800  # 30 minutes
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
 
 # Error handlers
 @app.errorhandler(404)
@@ -148,74 +101,48 @@ def signup():
 
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
-    app.logger.info('=== Signin Route Accessed ===')
-    app.logger.info('Method: %s', request.method)
-    app.logger.info('Headers: %s', dict(request.headers))
-    
     form = LoginForm()
     if request.method == 'POST':
         app.logger.info('Signin attempt from IP: %s', request.remote_addr)
         
-        try:
-            if request.is_json:
-                json_data = request.get_json()
-                app.logger.info('Received JSON data: %s', json_data)
-                for field in form:
-                    if field.name in json_data:
-                        field.data = json_data[field.name]
-                        app.logger.info('Set form field %s to %s', field.name, field.data)
-            else:
-                app.logger.info('Form data: %s', request.form)
-            
-            app.logger.info('Validating form...')
-            if form.validate_on_submit():
-                app.logger.info('Form validation successful')
-                try:
-                    app.logger.info('Attempting to find user with email: %s', form.email.data)
-                    user = User.query.filter_by(email=form.email.data).first()
-                    
-                    if user:
-                        app.logger.info('User found with ID: %s', user.id)
-                        app.logger.info('Checking password...')
-                        if user.check_password(form.password.data):
-                            app.logger.info('Password check successful')
-                            if user.role == form.role.data:
-                                app.logger.info('Role check successful. Setting session...')
-                                session['user_id'] = user.id
-                                session['user_role'] = user.role
-                                session['user_email'] = user.email
-                                app.logger.info('Session set successfully: %s', dict(session))
-                                
-                                return jsonify({
-                                    'message': 'Login successful!',
-                                    'redirect': '/'
-                                }), 200
-                            else:
-                                app.logger.warning('Role mismatch. User role: %s, Requested role: %s', 
-                                                 user.role, form.role.data)
-                                return jsonify({'error': 'Invalid role for this account'}), 401
-                        else:
-                            app.logger.warning('Password check failed for user: %s', user.email)
-                            return jsonify({'error': 'Invalid email or password'}), 401
-                    else:
-                        app.logger.warning('No user found with email: %s', form.email.data)
-                        return jsonify({'error': 'Invalid email or password'}), 401
-                        
-                except Exception as e:
-                    app.logger.error('Database error during login: %s', str(e), exc_info=True)
-                    return jsonify({'error': 'Login failed. Please try again.'}), 500
-            else:
-                app.logger.warning('Form validation failed: %s', form.errors)
-                return jsonify({
-                    'error': 'Invalid form data',
-                    'errors': form.errors
-                }), 400
+        if request.is_json:
+            json_data = request.get_json()
+            for field in form:
+                if field.name in json_data:
+                    field.data = json_data[field.name]
+        
+        if form.validate_on_submit():
+            try:
+                user = User.query.filter_by(email=form.email.data).first()
                 
-        except Exception as e:
-            app.logger.error('Unexpected error during login: %s', str(e), exc_info=True)
-            return jsonify({'error': 'An unexpected error occurred'}), 500
+                if user and user.check_password(form.password.data):
+                    if user.role == form.role.data:
+                        session['user_id'] = user.id
+                        session['user_role'] = user.role
+                        session['user_email'] = user.email
+                        app.logger.info('User logged in: %s', user.email)
+                        
+                        return jsonify({
+                            'message': 'Login successful!',
+                            'redirect': '/'
+                        }), 200
+                    else:
+                        app.logger.warning('Invalid role attempt for user: %s', user.email)
+                        return jsonify({'error': 'Invalid role for this account'}), 401
+                else:
+                    app.logger.warning('Failed login attempt for email: %s', form.email.data)
+                    return jsonify({'error': 'Invalid email or password'}), 401
+                    
+            except Exception as e:
+                app.logger.error('Login error: %s', str(e))
+                return jsonify({'error': 'Login failed. Please try again.'}), 500
+        else:
+            app.logger.warning('Login form validation failed: %s', form.errors)
+            return jsonify({
+                'error': 'Invalid form data',
+                'errors': form.errors
+            }), 400
             
-    app.logger.info('Rendering signin template')
     return render_template('signin.html', form=form)
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -269,7 +196,10 @@ def test_db_connection():
         }), 500
 
 if __name__ == '__main__':
-    # For local development
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=(os.environ.get('FLASK_ENV') != 'production'))
+    with app.app_context():
+        db.create_all()  # Create tables if they don't exist
+    app.run(debug=True)
+
+# For Vercel
+app = app
 
