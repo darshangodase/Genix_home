@@ -6,13 +6,26 @@ from models import db, User
 from config import Config
 from flask_migrate import Migrate
 from sqlalchemy import text
+import os
 
 # Initialize Flask app
 app = Flask(__name__, static_folder='assets', static_url_path='/assets')
 
+# Load configuration
 app.config.from_object(Config)
 
+# Initialize database
+db.init_app(app)
+migrate = Migrate(app, db)
 
+# Production settings
+if os.environ.get('FLASK_ENV') == 'production':
+    # Security settings
+    app.config['SESSION_COOKIE_SECURE'] = True
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
+    app.config['REMEMBER_COOKIE_SECURE'] = True
+    app.config['REMEMBER_COOKIE_HTTPONLY'] = True
+    app.config['PREFERRED_URL_SCHEME'] = 'https'
 
 # Error handlers
 @app.errorhandler(404)
